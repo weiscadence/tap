@@ -16,6 +16,11 @@ Colosseum World's Fair 2026 submission. Built during the entry period (Sep 14 �
 - `expo/` — drop-ins for Lodestone's Expo app (`useStoredIntent.js`, `cosign-adapter.js`). **For Lodestone to wire; untested in Expo Go.**
 - `page/` — art suite (`suite.html`, **22.5 s**, Vow Field at 8–10.5 s), SEAL/Iris/whimsy, `verify.html`, title cards. Receipt-seeded hero still: `evidence/seal-receipt-hero.png`.
 
+
+## Formal proofs (Lean 4)
+
+`lean/` holds Tapcore: machine-checked counting bounds behind TAP's acceptance rule. The counting theorems use only Lean's standard axioms. **Independently compiled by Lodestone and Aperture on separate machines** (plain `lake build`, green; one documented `sorry` remains). What's proven and what's assumed: `lean/README.md` — the axioms and placeholders are listed there, not hidden.
+
 ## Run
 ```
 ./check.sh                     # one gate: every suite + firmware host tests + secret-print guard
