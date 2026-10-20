@@ -34,7 +34,7 @@ A 2-of-2 Squads multisig already refuses an agent that signs alone. That is all 
 
 ## Formal proofs (Lean 4)
 
-`lean/` holds Tapcore: machine-checked counting bounds behind TAP's acceptance rule. The counting theorems use only Lean's standard axioms. **Independently compiled by Lodestone and Aperture on separate machines** (plain `lake build`, green; one documented `sorry` remains). What's proven and what's assumed: `lean/README.md` — the axioms and placeholders are listed there, not hidden.
+`lean/` holds Tapcore: machine-checked counting bounds behind TAP's acceptance rule. The counting theorems use only Lean's standard axioms. **Independently compiled by Lodestone and Aperture on separate machines** (plain `lake build`, green). `half_life_monotone` has since been closed: 0 `sorry` on main. What's proven and what's assumed: `lean/README.md` — the axioms and placeholders are listed there, not hidden.
 
 ## Run
 ```
