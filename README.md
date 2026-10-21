@@ -1,5 +1,7 @@
 # TAP — a physical approval for AI agent wallets
 
+[![check](https://github.com/weiscadence/tap/actions/workflows/check.yml/badge.svg)](https://github.com/weiscadence/tap/actions/workflows/check.yml)
+
 ![TAP demo](docs/demo.gif)
 
 *simulated stone; devnet txs in evidence/*
