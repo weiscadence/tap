@@ -3,7 +3,7 @@
 # Big terminal font. First run installs deps and creates throwaway devnet keys (git-ignored). If the devnet faucet
 # errors ("airdrop … Internal error", it is flaky), paste the printed agent address into https://faucet.solana.com and rerun.
 set -e
-cd "$(dirname "$0")/vault"
+cd "$(dirname "$0")/../../vault"
 [ -d node_modules ] || { echo "installing (first run)…"; npm install --silent; }
 # first run: devnet-2of2.js creates throwaway devnet keys (git-ignored), airdrops the agent, and proves the on-chain refusal
 [ -f devnet-keys.json ] || { echo "creating devnet keys (first run)…"; node devnet-2of2.js; }
