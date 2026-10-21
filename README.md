@@ -14,7 +14,7 @@ Your agent can spend small amounts inside a daily allowance (a Squads v4 spendin
 - **Lean (Tapcore):** Hamming-ball acceptance bound proven in [`lean/`](lean/); crypto modelled as **10 axioms** (HMAC + Ed25519 stand-in); **no unfinished goals**. See [`lean/README.md`](lean/README.md) and [PROOF.md §5](PROOF.md).
 - **Not proven yet:** a stone tap on real hardware. The magnet nonce and bump checks are simulated (Stage 1 / host-tested only), and the on-chain proof is agent + phone, not stone + phone.
 
-Colosseum World's Fair 2026 submission. Built during the entry period (Sep 14 – Oct 12, 2026).
+Colosseum World's Fair 2026 submission. Built during the entry period (Sep 14 – Oct 12, 2026). Submission materials: [`docs/hackathon/`](docs/hackathon/).
 
 ## What TAP adds over a plain multisig
 
@@ -27,16 +27,16 @@ A 2-of-2 Squads multisig already refuses an agent that signs alone. That is all 
 ## Layout
 - `sdk/` — `tap-guard.js` agent wrapper (devnet/demo): under-allowance passes through; over-limit returns `{status:'needs_tap', decoderLine}` and waits for `approve()`.
 - `stone/` — Node signer + policy (allowance, domain tag, Solana message-byte signing, plain-English decoder), simulated magnet-nonce channel, tests, `demo.js`, `squads-devnet.js` (devnet only).
-- `firmware/` — `solenoid_blink.ino` (the sketch running on the stone now, with `fire`; Lodestone) and `nonce_pulse.ino` (magnet one-time code, NOT yet bench-tested). Stone bench run with a taped-coin touch pad on GPIO4: [firmware/bench/BENCH.md](firmware/bench/BENCH.md).
+- `firmware/` — `solenoid_blink.ino` (the sketch running on the stone now, with a `fire` command) and `nonce_pulse.ino` (magnet one-time code, NOT yet bench-tested). Stone bench run with a taped-coin touch pad on GPIO4: [firmware/bench/BENCH.md](firmware/bench/BENCH.md).
 - `tap-page/` — local demo page.
-- `expo/` — drop-ins for Lodestone's Expo app (`useStoredIntent.js`, `cosign-adapter.js`). **For Lodestone to wire; untested in Expo Go.**
+- `expo/` — modules for the companion Expo phone app (`useStoredIntent.js`, `cosign-adapter.js`, `stone-gate.js`). **Not yet integrated; untested in Expo Go.**
 - `lean/` — Tapcore (Lean 4): counting bound proven; 10 crypto/modelling axioms; no unfinished goals. See `lean/README.md`.
 - `page/` — art suite (`suite.html`, **22.5 s**, Vow Field at 8–10.5 s), SEAL/Iris/whimsy, `verify.html`, title cards. Receipt-seeded hero still: `evidence/seal-receipt-hero.png`.
 
 
 ## Formal proofs (Lean 4)
 
-`lean/` holds Tapcore: machine-checked counting bounds behind TAP's acceptance rule. The counting theorems use only Lean's standard axioms. **Independently compiled by Lodestone and Aperture on separate machines** (plain `lake build`, green). `half_life_monotone` has since been closed: 0 `sorry` on main. What's proven and what's assumed: `lean/README.md` — the axioms and placeholders are listed there, not hidden.
+`lean/` holds Tapcore: machine-checked counting bounds behind TAP's acceptance rule. The counting theorems use only Lean's standard axioms. **Independently compiled on two separate machines** (plain `lake build`, green). 0 `sorry` on main. What's proven and what's assumed: `lean/README.md` — the axioms and placeholders are listed there, not hidden.
 
 ## Run
 ```
@@ -73,7 +73,7 @@ Rebuild the README demo GIF (chrome + ffmpeg): `docs/render-demo-gif.sh`.
 - Bump check (`stone/bump.js`, 13 tests) is **simulation-only** until the phone-on-stone bench run.
 - On-chain proof is **agent + phone** 2-of-2, not stone + phone.
 - **Stone-attested approval, Stage 1** ([docs/STONE-SIGN-FORMAT.md](docs/STONE-SIGN-FORMAT.md)): once a stone is paired, the phone co-signs only if the stone itself signed (Ed25519, after a physical touch: a coin taped to GPIO4 as a capacitive pad, or the BOOT button) this exact transaction, cluster, tap and counter, and its magnet pattern for that signature is felt. Built and host-tested (firmware matches JS byte-for-byte on shared vectors), compiles for ESP32, **not yet run on the stone or in Expo Go.** It does **not** stop a fully hijacked phone (the phone is the verifier), a live relay of the stone, or key extraction from the WROOM-32D (seed in unencrypted flash).
-- Field strength on camera: only **"phone-measured, ~800–1000 μT spikes"** (Jiggy magnetometer on `fire 1000`). Never a flat "1000 μT" as a spec.
+- Field strength on camera: only **"phone-measured, ~800–1000 μT spikes"** (a phone magnetometer reading on `fire 1000`). Never a flat "1000 μT" as a spec.
 - Fresh addresses = privacy only. Post-quantum (ML-DSA) = roadmap.
 - `squads-devnet.js` refuses any non-devnet RPC/genesis. Never use with real funds.
 
@@ -102,8 +102,8 @@ Honest limits of the bump link:
 - In simulation a random wrong-timing guess passed in roughly 0–1% of trials, so treat the bump as
   an added link on top of the magnet nonce, not a standalone proof.
 
-## vault/ (Cadence)
-`vault/` is Cadence's tap-vault: the code that produced the devnet evidence. The two devnet transactions, [2h859F…](https://explorer.solana.com/tx/2h859F33kaLQ7RUtHXpWNdxz5UDmcTZUbyQzcyT3GrXKeX65b1UMAoFvxwfsJkYh2GNNkABJTaJqKmB2rVYobMrD?cluster=devnet) (agent alone, refused) and [2ik5wV…](https://explorer.solana.com/tx/2ik5wVv3cviq4uhdvVht3NJkguqY5d1MgvbAdicEuR99a6t9C8vYZ6okjjEBnTKzKrorjHHYpccjNgBMyhbjFtHq?cluster=devnet) (agent + phone co-sign; the transaction proves 2 signatures, not a stone tap), came from `vault/e2e-devnet.js`. `stone/signer.js` is the demo stand-in used by the local demo, not the code behind those transactions. Tests: `cd vault && npm install && npm test` → **113** pass (25+22+9+8+10+31+2+6: vault, canon, shamir, executors, squads, cosign, squads-type, keybox; counted 2026-10-11). Stone signer/policy/nonce/bump/sig: **102** (13+32+21+27+9: bump, stone-sig, tap, tap2, tap3). Runtime keys go to `vault/devnet-keys.json`, which is git-ignored.
+## vault/
+`vault/` is the tap-vault: the code that produced the devnet evidence. The two devnet transactions, [2h859F…](https://explorer.solana.com/tx/2h859F33kaLQ7RUtHXpWNdxz5UDmcTZUbyQzcyT3GrXKeX65b1UMAoFvxwfsJkYh2GNNkABJTaJqKmB2rVYobMrD?cluster=devnet) (agent alone, refused) and [2ik5wV…](https://explorer.solana.com/tx/2ik5wVv3cviq4uhdvVht3NJkguqY5d1MgvbAdicEuR99a6t9C8vYZ6okjjEBnTKzKrorjHHYpccjNgBMyhbjFtHq?cluster=devnet) (agent + phone co-sign; the transaction proves 2 signatures, not a stone tap), came from `vault/e2e-devnet.js`. `stone/signer.js` is the demo stand-in used by the local demo, not the code behind those transactions. Tests: `cd vault && npm install && npm test` → **113** pass (25+22+9+8+10+31+2+6: vault, canon, shamir, executors, squads, cosign, squads-type, keybox; counted 2026-10-11). Stone signer/policy/nonce/bump/sig: **102** (13+32+21+27+9: bump, stone-sig, tap, tap2, tap3). Runtime keys go to `vault/devnet-keys.json`, which is git-ignored.
 
 ## Don't trust us: verify a tap yourself
 
